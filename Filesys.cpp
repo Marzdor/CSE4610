@@ -1,7 +1,10 @@
 #include "SdiskFAT12.cpp"
 
 const int kBootBlock = 0;
+const int kFatPrimaryStart = 1;
+const int kFatBackupStart = 10;
 const string kSupportedDriveType = "4D41584F53302E31";	// "MAXOS0.1"
+const string kReservedFatClustersValue = "F8FF";
 
 class Filesys: public SdiskFAT12
 {
@@ -35,6 +38,7 @@ class Filesys: public SdiskFAT12
           cout << "Formating drive...\n\n";
 
           // Init boot block
+          cout << "Creating boot block...\n\n";
           const string kBootStrapJmpCommand = "EB3E90";
           const string kBytesPerSector = "0002"; 		// 512
           const string kSectorsPerCluster = "01";		// 1
@@ -60,6 +64,25 @@ class Filesys: public SdiskFAT12
                                      kHiddenSectors + bootstrap + kReservedSignitare;
 
           this->putblock(kBootBlock,boot_sector_block);
+
+          // Init FATs
+          cout << "Creating fat blocks...\n\n";
+          string empty_hex = "00";
+          string empty_block_bytes = "";
+
+          for(int i=0; i<blocksize; i++) {
+            empty_block_bytes += empty_hex;
+          }
+          string first_fat_block = empty_block_bytes;
+          first_fat_block.replace(0,4,kReservedFatClustersValue);
+
+          for(int i=1; i<19; i++) {
+            if(i == kFatPrimaryStart || i == kFatBackupStart) {
+              this->putblock(i,first_fat_block);
+            } else {
+              this->putblock(i,empty_block_bytes);
+            }
+          }
         }
       }
 
