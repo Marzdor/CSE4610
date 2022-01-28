@@ -16,20 +16,38 @@ Boot Sector – Which stores information about the disk, and which file system i
     30-509  Bootstrap area. This holds the executable boot code (or bootstrap code) that starts the operating system.
     510-511 Reserved Signature 0x55 0xAA
 
-    0-2     EB 3C 90
-    3-10    4D 41 58 4F 53 30 2E 31
-    11-12   00 02
-    13      01
-    14-15   01 00
-    16      02
-    17-18   10 00
-    19-20   04 00
-    21      F8
-    22-23   01 00
-    24-25   01 00
-    26-27   01 00
-    28-29   00 00
-    30-509  00 (repeated 480 times)
-    510-511 AA 55
 
-    
+
+Fat 12 cluster values
+
+    Value               Meaning
+    0x00                Unused
+    0xFF0-0xFF6         Reserved cluster
+    0xFF7               Bad cluster
+    0xFF8-0xFFF         Last cluster in a file
+    (anything else)     Number of the next cluster in the file
+
+Directory structure
+
+    0-7     Filename                    if 1st byte =E5, then the directory entry is free; if 1st byte =x00, then this directory entry is free and all the remaining directory entries in this directory are also free.
+    8-10    Extension
+    11      Attributes (see details below)
+    12-13   Reserved
+    14-15   Creation Time
+    16-17   Creation Date
+    18-19   Last Access Date
+    20-21   Ignore in FAT12
+    22-23   Last Write Time
+    24-25   Last Write Date
+    26-27   First Logical Cluster
+    28-31   File Size (in bytes)
+
+    Bit Mask Attribute
+    0   0x01 Read-only
+    1   0x02 Hidden
+    2   0x04 System
+    3   0x08 Volume label
+    4   0x10 Subdirectory
+    5   0x20 Archive
+    6   0x40 Unused
+    7   0x80 Unused 
