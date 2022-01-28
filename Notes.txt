@@ -1,0 +1,35 @@
+Boot Sector – Which stores information about the disk, and which file system it has been formatted with.
+
+    0-2     Assembly command to jump to the bootstrap area. in x86 Assembly, this is: JMP NOP which translates to: 0xEB 0x90. Since the address where the code begins in the boot sector is at byte 62 (0x3E), the complete data is: EB 3E 90.
+    3-10    OEM name/version (E.g. “IBM 3.3”, “IBM 20.0”, “MSDOS5.0”, “MSWIN4.0”.
+    11-12   Number of bytes per sector.
+    13      Number of sectors per cluster.
+    14-15   Number of Reserved Sectors. This is the number of sectors that appear before, and including, the boot sector.
+    16      Number of FATs on the disk. Normally this is 2.
+    17-18   Number of directory entries in the Root Directory. This must be set so that entire sectors are used. Each entry requires 32 bytes.
+    19-20   Total number of sectors in the file system. This is used to determine how much space is available in the Data Area to store files.
+    21      Media descriptor type. 0xF8 = "hard disk"
+    22-23   Number of sectors per FAT. Each sector is allocated 12-bits (hence FAT12) in the FAT. That means that 24-bits or 3 bytes is used for every 2 files. The first three bytes in the FAT are reserved.
+    24-25   Number of sectors per track. This number is used by the BIOS to determine how to best access the disk.
+    26-27   Number of heads (ie. sides) on the disk. This number is used by the BIOS to determine how to best access the disk.
+    28-29   Number of hidden sectors. This is the number of sectors on the physical disk preceding the start of the volume. (that is, before the boot sector itself).
+    30-509  Bootstrap area. This holds the executable boot code (or bootstrap code) that starts the operating system.
+    510-511 Reserved Signature 0x55 0xAA
+
+    0-2     EB 3C 90
+    3-10    4D 41 58 4F 53 30 2E 31
+    11-12   00 02
+    13      01
+    14-15   01 00
+    16      02
+    17-18   10 00
+    19-20   04 00
+    21      F8
+    22-23   01 00
+    24-25   01 00
+    26-27   01 00
+    28-29   00 00
+    30-509  00 (repeated 480 times)
+    510-511 AA 55
+
+    
