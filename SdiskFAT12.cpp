@@ -4,46 +4,44 @@
 #include <sstream>
 #include <vector>
 
-using namespace std;
-
 class SdiskFAT12
 {
   public:
     // Creates Sdisk and initializes it or opens existing Sdisk
-    SdiskFAT12(string diskname, int numberofblocks, int blocksize) {
+    SdiskFAT12(std::string diskname, int numberofblocks, int blocksize) {
       this -> diskname = diskname;
-      ifstream diskFile;
+      std::ifstream diskFile;
       diskFile.open("./sys/" + diskname);
 
       if (!diskFile.is_open()) {
         this -> numberofblocks = numberofblocks;
         this -> blocksize = blocksize;
 
-        cout << "Sdisk: " << diskname << " not found.\n";
-        cout << "Creating: " << diskname << " ...\n";
+        std::cout << "Sdisk: " << diskname << " not found.\n";
+        std::cout << "Creating: " << diskname << " ...\n";
 
-        ofstream newDiskFile("./sys/" + diskname);
+        std::ofstream newDiskFile("./sys/" + diskname);
 
-        string emptyHex = "00";
-        string blockBytes = "";
-        
+        std::string emptyHex = "00";
+        std::string blockBytes = "";
+
         for(int i=0; i<blocksize; i++) {
           blockBytes += emptyHex;
         }
 
         for (int i = 0; i < numberofblocks; i++) {
-          string block = blockBytes + " Block " + to_string(i);
-          newDiskFile << block << endl;
+          std::string block = blockBytes + " Block " + std::to_string(i);
+          newDiskFile << block << std::endl;
         }
 
-        cout << diskname << " is created.\n";
-        cout << "Connected to: " << diskname << "\nNumber of blocks: " << this -> numberofblocks << "\nBlock size: " << this -> blocksize << "\n\n";
+        std::cout << diskname << " is created.\n";
+        std::cout << "Connected to: " << diskname << "\nNumber of blocks: " << this -> numberofblocks << "\nBlock size: " << this -> blocksize << "\n\n";
         newDiskFile.close();
       } else {
-        string lastLine, data;
-        istringstream iss;
+        std::string lastLine, data;
+        std::istringstream iss;
 
-        while (diskFile >> ws && getline(diskFile, lastLine));
+        while (diskFile >> std::ws && getline(diskFile, lastLine));
 
         iss.clear();
         iss.str(lastLine);
@@ -61,21 +59,21 @@ class SdiskFAT12
           index++;
         }
 
-        cout << "Connected to: " << diskname << "\nNumber of blocks: " << this -> numberofblocks << "\nBlock size (bytes): " << this -> blocksize << "\n\n";
+        std::cout << "Connected to: " << diskname << "\nNumber of blocks: " << this -> numberofblocks << "\nBlock size (bytes): " << this -> blocksize << "\n\n";
         diskFile.close();
       }
     }
 
-    int getblock(int blocknumber, string & buffer) {
-      cout << "Get Block: " << blocknumber << endl;
-      ifstream diskFile;
-      string block, data;
-      istringstream iss;
+    int getblock(int blocknumber, std::string & buffer) {
+//      std::cout << "Get Block: " << blocknumber << std::endl;
+      std::ifstream diskFile;
+      std::string block, data;
+      std::istringstream iss;
 
       diskFile.open("./sys/" + this -> diskname);
 
       if (diskFile.is_open()) {
-        cout << "Locating Block: " << blocknumber << endl;
+//        std::cout << "Locating Block: " << blocknumber << std::endl;
         int curBlock = 0;
 
         while (getline(diskFile, block)) {
@@ -100,31 +98,31 @@ class SdiskFAT12
 
         diskFile.close();
       } else {
-        cout << "[ERROR] putblock File1 not Opened.\n\n";
+        std::cout << "[ERROR] putblock File1 not Opened.\n\n";
         return 0;
       };
 
-      cout << "Found Block: " << blocknumber << "\n\n";
+//      std::cout << "Found Block: " << blocknumber << "\n\n";
       return 1;
     };
 
-    int putblock(int blocknumber, string buffer) {
-      cout << "Update Block: " << blocknumber << endl;
-      fstream diskFile;
-      string block;
-      vector < string > tmp;
+    int putblock(int blocknumber, std::string buffer) {
+      std::cout << "Update Block: " << blocknumber << std::endl;
+      std::fstream diskFile;
+      std::string block;
+      std::vector < std::string > tmp;
 
       diskFile.open("./sys/" + this -> diskname);
 
       if (diskFile.is_open()) {
-        cout << "Locating Block: " << blocknumber << endl;
+        std::cout << "Locating Block: " << blocknumber << std::endl;
         int curBlock = 0;
 
         while (getline(diskFile, block)) {
           if (curBlock != blocknumber) {
             tmp.push_back(block);
           } else {
-            string newData = buffer + " Block " + to_string(curBlock);
+            std::string newData = buffer + " Block " + std::to_string(curBlock);
             tmp.push_back(newData);
           }
 
@@ -133,32 +131,37 @@ class SdiskFAT12
 
         diskFile.close();
       } else {
-        cout << "[ERROR] putblock File1 not Opened.\n\n";
+        std::cout << "[ERROR] putblock File1 not Opened.\n\n";
         return 0;
       };
 
-      diskFile.open("./sys/" + this -> diskname, ios::out | ios::trunc);
+      diskFile.open("./sys/" + this -> diskname, std::ios::out | std::ios::trunc);
 
       if (diskFile.is_open()) {
-        cout << "Updating Block: " << blocknumber << endl;
+        std::cout << "Updating Block: " << blocknumber << std::endl;
         for (int i = 0; i < tmp.size(); i++) {
-          diskFile << tmp.at(i) << endl;
+          diskFile << tmp.at(i) << std::endl;
         }
 
         diskFile.close();
       } else {
-        cout << "[ERROR] putblock File2 not Opened.\n\n";
+        std::cout << "[ERROR] putblock File2 not Opened.\n\n";
         return 0;
       };
 
-      cout << "Block " << blocknumber << " Updated.\n\n";
+      std::cout << "Block " << blocknumber << " Updated.\n\n";
       return 1;
     }
 
-    int getnumberofblocks(); // accessor function
-    int getblocksize(); // accessor function
+    int getnumberofblocks() {
+      return this->numberofblocks;
+    }; 
+    
+    int getblocksize() {
+      return this->blocksize;
+    }; 
   private:
-    string diskname; // file name of software-disk
+    std::string diskname; // file name of software-disk
     int numberofblocks; // number of blocks on disk
     int blocksize; // block size in bytes
 };

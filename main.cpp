@@ -1,7 +1,7 @@
 #include "PasswordFile.cpp"
 //#include "Sdisk.cpp"
 #include "Filesys.cpp"
-
+#include "Constants.h"
 
 int main()
 {
@@ -9,6 +9,8 @@ int main()
   const int kBlocks = 2813; // about 1.44megabytes of storage space
   const int kBlockSize = 512; // bytes
   Filesys mainDisk("drive1",kBlocks,kBlockSize);
+  
+  return 0;
 
 //  const int kBlocks = 16;
 //  const int kBlockSize = 64; // bits

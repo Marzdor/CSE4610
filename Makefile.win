@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = PasswordFile.o main.o Sdisk.o Filesys.o SdiskFAT12.o
-LINKOBJ  = PasswordFile.o main.o Sdisk.o Filesys.o SdiskFAT12.o
+OBJ      = PasswordFile.o main.o Sdisk.o Filesys.o SdiskFAT12.o Utilities.o
+LINKOBJ  = PasswordFile.o main.o Sdisk.o Filesys.o SdiskFAT12.o Utilities.o
 LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
@@ -38,3 +38,6 @@ Filesys.o: Filesys.cpp
 
 SdiskFAT12.o: SdiskFAT12.cpp
 	$(CPP) -c SdiskFAT12.cpp -o SdiskFAT12.o $(CXXFLAGS)
+
+Utilities.o: Utilities.cpp
+	$(CPP) -c Utilities.cpp -o Utilities.o $(CXXFLAGS)
