@@ -12,6 +12,13 @@ int HexStringToInt (std::string hex_value)
   return x;
 }
 
+std::string IntToHexString(int number){
+    std::stringstream ss;
+    ss << std::hex << number;
+    std::string hex_string = ss.str();
+    return hex_string.length() == 2 ? "00"+hex_string : hex_string;
+}
+
 std::string HexStringToAsciiString(std::string hex_value)
 {
   // initialize the ASCII code string as empty.
@@ -29,6 +36,22 @@ std::string HexStringToAsciiString(std::string hex_value)
     ascii += ch;
   }
   return ascii;
+}
+
+std::string AsciiStringToHexString(std::string ascii)
+{
+  std::string hex_string = "";
+  std::stringstream ss;
+
+  std::cout << "string: " << ascii << std::endl;
+
+  for (const auto &item : ascii) {
+    ss << std::hex << int(item);
+  }
+  hex_string = ss.str();
+  std::cout << "hexval: " << hex_string << std::endl;
+
+  return hex_string;
 }
 
 std::string ReverseHexPair(std::string hex_pair)
@@ -76,7 +99,7 @@ void PrintVectorStrings(std::vector<std::string> vec, std::string name_of_vec)
   for(int i=0; i < vec.size(); i++) {
     std::cout << vec.at(i) << std::endl;
   }
-  
+
   std::cout << name_of_vec << " end reached\n\n";
 }
 

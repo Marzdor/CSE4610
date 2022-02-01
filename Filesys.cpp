@@ -23,8 +23,8 @@ class Filesys: public SdiskFAT12
           std::cout << diskname << " drive found." << std::endl;
           std::cout << "Booting...\nBooted " << diskname << std::endl << std::endl;
 
-          this->fssynch();
           this->InitializeMemory();
+          this->fssynch();
 
         } else {
           char response;
@@ -75,24 +75,32 @@ class Filesys: public SdiskFAT12
           }
 
           std::cout << "Formate finished.\nBooting...\nBooted " << diskname << std::endl << std::endl;
-          this->fssynch();
           this->InitializeMemory();
+          this->fssynch();
         }
       }
 
     };
     int fsclose();
     int fssynch() {
-      std::cout << "Syncing...\nSynced" << std::endl << std::endl;
-      std::string boot_sector_block = "";
-      this->getblock(kBootBlock,boot_sector_block);
+      std::cout << "Syncing...\n" << std::endl;
 
-      std::string base_root_size_value = boot_sector_block.substr(kRootSizeOffset,kRootSizeLength);
-      this->rootsize = HexStringToInt(ReverseHexPair(base_root_size_value));
+      int root_entries = this->filename.size();
+      int root_offset = this->fatsize+1;
 
-      std::string base_number_fats = boot_sector_block.substr(kFatsOffset,kFatsLength);
-      std::string base_sectors_per_fat = boot_sector_block.substr(kSectorsPerFatOffset,kSectorsPerFatLength);
-      this->fatsize = HexStringToInt(base_number_fats) * HexStringToInt(ReverseHexPair(base_sectors_per_fat));
+      int current_root_sector = root_offset;
+      for(int i=0; i < root_entries; i++) {
+        if(i!=0 && i&16==0) {
+          current_root_sector++;
+        }
+
+        std::string tmp_entry_data = AsciiStringToHexString(this->filename.at(i)) + "000000000000000000000000000000"
+                                     + IntToHexString(std::stoi(this->firstblock.at(i))) + "00000000";
+
+        this->putblock(current_root_sector,tmp_entry_data);
+      }
+
+      std::cout << "Synced\n\n";
 
     };
     int newfile(std::string file);
@@ -113,6 +121,17 @@ class Filesys: public SdiskFAT12
 
     void InitializeMemory() {
       std::cout << "Initializing Memory...\nMemory Loaded" << std::endl << std::endl;
+
+      std::string boot_sector_block = "";
+      this->getblock(kBootBlock,boot_sector_block);
+
+      std::string base_root_size_value = boot_sector_block.substr(kRootSizeOffset,kRootSizeLength);
+      this->rootsize = HexStringToInt(ReverseHexPair(base_root_size_value));
+
+      std::string base_number_fats = boot_sector_block.substr(kFatsOffset,kFatsLength);
+      std::string base_sectors_per_fat = boot_sector_block.substr(kSectorsPerFatOffset,kSectorsPerFatLength);
+      this->fatsize = HexStringToInt(base_number_fats) * HexStringToInt(ReverseHexPair(base_sectors_per_fat));
+
       int root_offset = this->fatsize + 1;
       int num_of_root_sectors = (this->rootsize * 32) / this->getblocksize();
 
@@ -136,7 +155,7 @@ class Filesys: public SdiskFAT12
           } else {
             std::cout << "Sector: " << i << " " << j << "-" << j+63 << ": \"" << tmp_dir_data.at("file_name") << "\" \""
                       << tmp_dir_data.at("extension") << "\" at \"" << tmp_dir_data.at("first_logical_cluster") << "\"\n";
-            this->filename.push_back(tmp_dir_data.at("file_name"));
+            this->filename.push_back(tmp_dir_data.at("file_name") + tmp_dir_data.at("extension"));
             this->firstblock.push_back(tmp_dir_data.at("first_logical_cluster"));
           }
         }

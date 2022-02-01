@@ -6,7 +6,9 @@
 #include <vector>
 
 int HexStringToInt(std::string);
+std::string IntToHexString(int);
 std::string HexStringToAsciiString(std::string);
+std::string AsciiStringToHexString(std::string);
 std::string ReverseHexPair(std::string);
 std::map<std::string, std::string> GetDirectoryData(std::string);
 void PrintVectorStrings(std::vector<std::string> vec, std::string name_of_vec);
