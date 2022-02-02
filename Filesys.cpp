@@ -85,24 +85,42 @@ class Filesys: public SdiskFAT12
     int fssynch() {
       std::cout << "Syncing...\n" << std::endl;
 
-      int root_entries = this->filename.size();
+      // Sync ROOT
+      int root_entries = this->root.size();
       int root_offset = this->fatsize+1;
-
       int current_root_sector = root_offset;
-      for(int i=0; i < root_entries; i++) {
-        if(i!=0 && i&16==0) {
+      std::string tmp_root_data = "";
+
+      for(int i=0; i<root_entries; i++) {
+        if(i!=0 && i%16==0) {
+          this->putblock(current_root_sector,tmp_root_data);
+          tmp_root_data = "";
           current_root_sector++;
         }
 
-        std::string tmp_entry_data = AsciiStringToHexString(this->filename.at(i)) + "000000000000000000000000000000"
-                                     + IntToHexString(std::stoi(this->firstblock.at(i))) + "00000000";
+        tmp_root_data += this->root.at(i);
+      }
 
-        this->putblock(current_root_sector,tmp_entry_data);
+      // Sync FAT
+      int fat_entries = this->fat.size();
+      int current_fat_sector = 1;
+      std::string tmp_fat_data = "";
+
+      for(int i=0; i<fat_entries; i+=2) {
+        std::string tmp_fat_hex = this->fat.at(i) + this->fat.at(i+1);
+        std::string rebuilt_fat_hex = tmp_fat_hex.substr(1,2) + tmp_fat_hex.substr(3,1) + tmp_fat_hex.substr(0,1) + tmp_fat_hex.substr(4,2);
+        tmp_fat_data += rebuilt_fat_hex;
+      }
+
+      for(int i=1; i<=this->fatsize/2; i++) {
+        int start_of_sector = 0 + (i-1) * 1024;
+        std::string fat_sector = tmp_fat_data.substr(start_of_sector,1024);
+		this->putblock(i,fat_sector);
       }
 
       std::cout << "Synced\n\n";
-
     };
+
     int newfile(std::string file);
     int rmfile(std::string file);
     int getfirstblock(std::string file);
@@ -115,9 +133,8 @@ class Filesys: public SdiskFAT12
   private:
     int rootsize; // maximum number of entries in ROOT
     int fatsize; // number of blocks occupied by FAT
-    std::vector < std::string > filename; // filenames in ROOT
-    std::vector < std::string > firstblock; // firstblocks in ROOT
-    std::vector < std::string > fat; // FAT
+    std::vector < std::string > root; // ROOT entries
+    std::vector < std::string > fat; // FAT entries
 
     void InitializeMemory() {
       std::cout << "Initializing Memory...\nMemory Loaded" << std::endl << std::endl;
@@ -142,47 +159,31 @@ class Filesys: public SdiskFAT12
 
         for(int j=0; j<this->getblocksize(); j+=64) {
           std::string tmp_dir_raw_data = tmp_sector_data.substr(j,64);
-
-          if(tmp_dir_raw_data.substr(0,2) == "00") {
-//            std::cout << "No more directories found in root sector: " << i << std::endl << std::endl;
-            break;
-          }
-
-          std::map<std::string, std::string> tmp_dir_data = GetDirectoryData(tmp_dir_raw_data);
-
-          if(tmp_dir_raw_data.substr(0,2) == "E5") {
-            std::cout << "Sector: " << i << " " << j << "-" << j+63 << ": Empty at \"" << tmp_dir_data.at("first_logical_cluster") << "\"\n";
-          } else {
-            std::cout << "Sector: " << i << " " << j << "-" << j+63 << ": \"" << tmp_dir_data.at("file_name") << "\" \""
-                      << tmp_dir_data.at("extension") << "\" at \"" << tmp_dir_data.at("first_logical_cluster") << "\"\n";
-            this->filename.push_back(tmp_dir_data.at("file_name") + tmp_dir_data.at("extension"));
-            this->firstblock.push_back(tmp_dir_data.at("first_logical_cluster"));
-          }
+          this->root.push_back(tmp_dir_raw_data);
         }
       }
 
-//      PrintVectorStrings(this->filename,"filename");
-//      PrintVectorStrings(this->firstblock,"firstblock");
+//      PrintVectorStrings(this->root,"root");
 
       // load fat
-      int current_fat_index = 0;
+      std::string fat_data = "";
 
-      for(int i=1; i<this->fatsize/2; i++) {
+      for(int i=1; i<=this->fatsize/2; i++) {
         std::string tmp_sector_data = "";
         this->getblock(i,tmp_sector_data);
-
-        for(int i=0; i<this->getblocksize(); i+= 6) {
-          std::string current_bytes = tmp_sector_data.substr(i,6);
-          std::string first_fat = current_bytes.substr(3,1) + current_bytes.substr(0,2);
-          std::string second_fat = current_bytes.substr(2,1) + current_bytes.substr(4,2);
-
-          this->fat.push_back(first_fat);
-          this->fat.push_back(second_fat);
-          current_fat_index += 2;
-        }
+        fat_data += tmp_sector_data;
       }
+
+      for(int i=0; i<fat_data.size(); i+= 6) {
+        std::string current_bytes = fat_data.substr(i,6);
+        std::string first_fat = current_bytes.substr(3,1) + current_bytes.substr(0,2);
+        std::string second_fat = current_bytes.substr(2,1) + current_bytes.substr(4,2);
+
+        this->fat.push_back(first_fat);
+        this->fat.push_back(second_fat);
+      }
+    }
 
 //      PrintVectorStrings(this->fat,"fat");
 
-    }
 };
