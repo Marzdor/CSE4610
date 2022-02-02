@@ -1,3 +1,4 @@
+#include "Config.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -13,7 +14,7 @@ class PasswordFile
     // Opens the file and reads the userNames and passwords into the vectors user and password.
     PasswordFile(string filename) {
       this -> filename = filename;
-      ifstream inFile("./sys/" + filename);
+      ifstream inFile(kDriveDirectory + filename);
 
       if (inFile.is_open()) {
         cout << "Getting Users\n";

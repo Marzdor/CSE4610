@@ -1,8 +1,7 @@
+#include "Config.h"
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <sstream>
-#include <vector>
 
 class Sdisk
 {
@@ -13,13 +12,13 @@ class Sdisk
       this->block_size = block_size;
 
       std::ifstream disk_file;
-      disk_file.open("./sys/" + this->disk_name);
+      disk_file.open(kDriveDirectory + this->disk_name);
 
       if (!disk_file.is_open()) {
-        std::ofstream new_disk_file("./sys/" + disk_name);
+        std::ofstream new_disk_file(kDriveDirectory + disk_name);
 
         for(int i=0; i<this->GetNumberOfBlocks()*this->GetBlockSize(); i++) {
-          new_disk_file.put('.');
+          new_disk_file.put(kBlankData);
         }
 
         new_disk_file.close();
@@ -30,7 +29,7 @@ class Sdisk
 
     int GetBlock(int block_number, std::string & buffer) {
       std::ifstream disk_file;
-      disk_file.open("./sys/" + this->disk_name);
+      disk_file.open(kDriveDirectory + this->disk_name);
 
       if (!disk_file.is_open()) {
         return 0;
@@ -49,7 +48,7 @@ class Sdisk
 
     int PutBlock(int block_number, std::string buffer) {
       std::fstream disk_file;
-      disk_file.open("./sys/" + this->disk_name);
+      disk_file.open(kDriveDirectory + this->disk_name);
 
       if (!disk_file.is_open()) {
         return 0;
