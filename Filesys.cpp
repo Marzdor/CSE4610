@@ -1,3 +1,4 @@
+#include "Utilities.h"
 #include "Sdisk.cpp"
 #include <vector>
 #include <sstream>
@@ -10,7 +11,6 @@ class Filesys: public Sdisk
       : Sdisk(disk_name, number_of_blocks, block_size) {
 
       this->root_size = this->GetBlockSize() / 12;
-
       int bytes_fat_needs = this->GetNumberOfBlocks() * 6;
       this->fat_size = bytes_fat_needs / this->GetBlockSize();
       this->fat_size += bytes_fat_needs % this->GetBlockSize() > 0; // add 1 if we have a remainder else add 0
@@ -28,7 +28,7 @@ class Filesys: public Sdisk
         ss << this->file_names.at(i) << kDelim << std::setw(kWidth) << std::setfill(kPlaceHolder) << this->first_blocks.at(i) << kDelim;
       }
 
-      std::vector<std::string> root_block = this->StandardizeBlock(ss.str(), this->GetBlockSize());
+      std::vector<std::string> root_block = StandardizeBlocks(ss.str(), this->GetBlockSize());
       this->PutBlock(0,root_block.at(0));
 
       ss.str("");
@@ -38,26 +38,118 @@ class Filesys: public Sdisk
         ss << std::setw(kWidth) << std::setfill(kPlaceHolder) << this->fat.at(i) << kDelim;
       }
 
-      std::vector<std::string> fat_block = this->StandardizeBlock(ss.str(), this->GetBlockSize());
+      std::vector<std::string> fat_block = StandardizeBlocks(ss.str(), this->GetBlockSize());
       for (int i = 0; i < fat_block.size(); i++) {
         this->PutBlock(i+1, fat_block.at(i));
       }
     };
 
-    int newfile(std::string file);
-    int rmfile(std::string file);
-    int getfirstblock(std::string file);
-    int addblock(std::string file, std::string block);
-    int delblock(std::string file, int blocknumber);
+    int CreateNewFile(std::string filename) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      int empty_file_index = FindFileIndex(this->file_names,kBlankDirectory);
+
+      bool file_exists = file_location != -1;
+      bool no_free_space = empty_file_index == -1;
+      if(file_exists || no_free_space) {
+        return 0;
+      }
+
+      this->file_names.at(empty_file_index) = formatted_filename;
+      this->first_blocks.at(empty_file_index) = 0;
+      this->FileSystemSync();
+
+      return 1;
+    };
+
+    int RemoveFile(std::string filename) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      bool file_exists = file_location != -1;
+
+      if(!file_exists) {
+        return 0;
+      }
+
+      bool file_is_empty = this->GetFirstBlock(formatted_filename) == 0;
+
+      if(!file_is_empty) {
+        return 0;
+      }
+
+      this->file_names.at(file_location) = kBlankDirectory;
+      this->FileSystemSync();
+      return 1;
+    };
+
+    int GetFirstBlock(std::string filename) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int found = FindFileIndex(this->file_names, filename);
+
+      if(found != -1) {
+        return this->first_blocks.at(found);
+      }
+
+      return 0;
+    };
+
+    int AddBlock(std::string filename, std::string buffer) {
+      int free_block = this->fat.at(0);
+
+      bool have_space = free_block != 0;
+      if(!have_space) {
+        return -1;
+      }
+
+      std::string formatted_filename = FormatteFileName(filename);
+      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      bool file_exists = file_location != -1;
+
+      if(!file_exists) {
+        return 0;
+      }
+
+      int file_first_block = this->GetFirstBlock(formatted_filename);
+      bool file_is_empty = file_first_block == 0;
+
+      if(file_is_empty) {
+        this->first_blocks.at(file_location) = free_block;
+        this->fat.at(0) = this->fat.at(free_block);
+        this->fat.at(free_block) = 0;
+        this->PutBlock(free_block, buffer);
+        
+      } else {
+        int current_file_block = file_is_empty;
+        int not_end_of_file = this->fat.at(current_file_block) == 0;
+        
+        while(not_end_of_file) {
+          current_file_block = this->fat.at(current_file_block);
+        }
+        
+        this->first_blocks.at(file_location) = free_block;
+        this->fat.at(0) = this->fat.at(free_block);
+        this->fat.at(free_block) = 0;
+        this->PutBlock(free_block, buffer);
+      }
+      
+      this->FileSystemSync();
+      return free_block;
+    };
+
+    int DeleteBlock(std::string filename, int block_number){
+    	
+	};
+    
     int readblock(std::string file, int blocknumber, std::string& buffer);
     int writeblock(std::string file, int blocknumber, std::string buffer);
     int nextblock(std::string file, int blocknumber);
+    
   private :
-    int root_size;           // maximum number of entries in ROOT
-    int fat_size;            // number of blocks occupied by FAT
-    std::vector<std::string> file_names;   // filenames in ROOT
-    std::vector<int> first_blocks; // firstblocks in ROOT
-    std::vector<int> fat;             // FAT
+    int root_size;                        // maximum number of entries in ROOT
+    int fat_size;                         // number of blocks occupied by FAT
+    std::vector<std::string> file_names;  // filenames in ROOT
+    std::vector<int> first_blocks;        // firstblocks in ROOT
+    std::vector<int> fat;                 // FAT
 
     void InitializeFileSystem() {
       std::string root_block;
@@ -75,7 +167,7 @@ class Filesys: public Sdisk
 
       if(fresh_drive) {
         for(int i=0; i<this->root_size; i++) {
-          ss << kBlankDirectory << kBlankIndex;
+          ss << kBlankDirectory << kDelim << kBlankIndex << kDelim;
         }
 
       } else {
@@ -84,10 +176,12 @@ class Filesys: public Sdisk
         ss << root_block;
       }
 
-      std::vector<std::string> root_entries = this->StandardizeBlock(ss.str(), this->GetBlockSize());
-      ss.str(root_entries[0]);
+      std::vector<std::string> root_entries = StandardizeBlocks(ss.str(), this->GetBlockSize());
+
+      ss.str(root_entries.at(0));
 
       std::string current_entry;
+
       for (int i=0; i<(this->root_size * 2) && getline(ss, current_entry,' '); i++) {
         if (i % 2 == 0) {
           this->file_names.push_back(current_entry);
@@ -121,41 +215,16 @@ class Filesys: public Sdisk
         }
       }
 
-      std::vector<std::string> fat_entries = this->StandardizeBlock(ss.str(), this->GetBlockSize());
+      std::vector<std::string> fat_entries = StandardizeBlocks(ss.str(), this->GetBlockSize());
       ss.str("");
 
       for (int i = 0; i < fat_entries.size(); i++) {
-        ss << fat_entries[i];
+        ss << fat_entries.at(i);
       }
 
       std::string current_entry;
       for (int i=0; i < this->GetNumberOfBlocks() && getline(ss, current_entry,' '); i++) {
         this->fat.push_back(std::stoi(current_entry));
       }
-    }
-
-    std::vector<std::string> StandardizeBlock(std::string buffer, int block_size) {
-      std::vector<std::string> blocks;
-      int number_of_blocks = 0;
-
-      if (buffer.length() % block_size == 0) {
-        number_of_blocks = buffer.length()/block_size;
-      } else {
-        number_of_blocks = buffer.length()/block_size +1;
-      }
-
-      std::string tmp_block;
-      for (int i=0; i < number_of_blocks; i++) {
-        tmp_block = buffer.substr(block_size*i, block_size);
-        blocks.push_back(tmp_block);
-      }
-
-      int last_block = blocks.size() - 1;
-
-      for (int i=blocks[last_block].length(); i<block_size; i++) {
-        blocks[last_block] += kBlankData;
-      }
-
-      return blocks;
     }
 };

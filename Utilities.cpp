@@ -1,105 +1,47 @@
+#include "Config.h"
 #include "Utilities.h"
-#include <sstream>
 #include <iostream>
+#include <algorithm>
 
-int HexStringToInt (std::string hex_value)
+std::string FormatteFileName(std::string filename)
 {
-  int x;
-  std::stringstream ss;
-  ss << std::hex << hex_value;
-  ss >> x;
-
-  return x;
-}
-
-std::string IntToHexString(int number){
-    std::stringstream ss;
-    ss << std::hex << number;
-    std::string hex_string = ss.str();
-    return hex_string.length() == 2 ? "00"+hex_string : hex_string;
-}
-
-std::string HexStringToAsciiString(std::string hex_value)
-{
-  // initialize the ASCII code string as empty.
-  std::string ascii = "";
-
-  for (int i = 0; i < hex_value.length(); i += 2) {
-    // extract two characters from hex string
-    std::string part = hex_value.substr(i, 2);
-
-    // change it into base 16 and
-    // typecast as the character
-    char ch = std::stoul(part, nullptr, 16);
-
-    // add this char to final ASCII string
-    ascii += ch;
-  }
-  return ascii;
-}
-
-std::string AsciiStringToHexString(std::string ascii)
-{
-  std::string hex_string = "";
-  std::stringstream ss;
-
-  std::cout << "string: " << ascii << std::endl;
-
-  for (const auto &item : ascii) {
-    ss << std::hex << int(item);
-  }
-  hex_string = ss.str();
-  std::cout << "hexval: " << hex_string << std::endl;
-
-  return hex_string;
-}
-
-std::string ReverseHexPair(std::string hex_pair)
-{
-  return hex_pair.substr(2,2) + hex_pair.substr(0,2);
-}
-
-std::map<std::string, std::string> GetDirectoryData(std::string dir_string)
-{
-  std::string file_name = HexStringToAsciiString(dir_string.substr(0,16));
-  std::string extension = HexStringToAsciiString(dir_string.substr(16,6));
-  std::string attributes = HexStringToAsciiString(dir_string.substr(22,2));
-  std::string reserved = HexStringToAsciiString(dir_string.substr(24,4));
-  std::string created_time = HexStringToAsciiString(dir_string.substr(28,4));
-  std::string created_date = HexStringToAsciiString(dir_string.substr(32,4));
-  std::string last_access_date = HexStringToAsciiString(dir_string.substr(36,4));
-  std::string ignore = HexStringToAsciiString(dir_string.substr(40,4));
-  std::string last_write_time = HexStringToAsciiString(dir_string.substr(44,4));
-  std::string last_write_date = HexStringToAsciiString(dir_string.substr(48,4));
-  std::string first_logical_cluster = std::to_string(HexStringToInt(dir_string.substr(52,4)));
-  std::string file_size = HexStringToAsciiString(dir_string.substr(56,8));
-
-  std::map<std::string, std::string> dir_data {
-    {"file_name", file_name},
-    {"extension", extension},
-    {"attributes", attributes},
-    {"reserved", ""},
-    {"created_time", ""},
-    {"created_date", ""},
-    {"last_access_date", ""},
-    {"ignore", ""},
-    {"last_write_time", ""},
-    {"last_write_date", ""},
-    {"first_logical_cluster", first_logical_cluster},
-    {"file_size", ""}
-  };
-
-  return dir_data;
+  return filename.substr(0,kWidth);
 };
 
-void PrintVectorStrings(std::vector<std::string> vec, std::string name_of_vec)
+int FindFileIndex(std::vector<std::string> files, std::string filename)
 {
-  std::cout << name_of_vec << " elements are:\n";
+  auto iterator = std::find(files.begin(), files.end(), filename);
 
-  for(int i=0; i < vec.size(); i++) {
-    std::cout << vec.at(i) << std::endl;
+  if (iterator != files.end()) {
+    int index = iterator - files.begin();
+    return index;
+  } else {
+    return -1;
   }
-
-  std::cout << name_of_vec << " end reached\n\n";
 }
 
+std::vector<std::string> StandardizeBlocks(std::string buffer, int block_size)
+{
+  std::vector<std::string> blocks;
+  int number_of_blocks = 0;
+
+  if (buffer.length() % block_size == 0) {
+    number_of_blocks = buffer.length()  block_size;
+  } else {
+    number_of_blocks = buffer.length() / block_size + 1;
+  }
+
+  std::string tmp_block;
+  for (int i=0; i < number_of_blocks; i++) {
+    tmp_block = buffer.substr(block_size*i, block_size);
+    blocks.push_back(tmp_block);
+  }
+
+  int last_block = blocks.size() - 1;
+
+  for (int i=blocks.at(last_block).length(); i<block_size; i++) {
+    blocks.at(last_block) += kBlankData;
+  }
+
+  return blocks;
+}
