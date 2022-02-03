@@ -4,38 +4,24 @@ int main()
 {
   Filesys fsys("test2",256,128);
 
-  fsys.CreateNewFile("file1");
-  fsys.CreateNewFile("file2");
+  std::string f1block, f2block;
+  fsys.ReadBlock("file1",17,f1block);
 
-  std::string bfile1, bfile2;
+  std::cout << f1block << "\n\n";
 
-  for (int i=1; i<=1024; i++) {
-    bfile1 += "1";
-  }
+  fsys.ReadBlock("file2", fsys.GetFirstBlock("file2"),f2block);
 
-  std::vector<std::string> blocks = StandardizeBlocks(bfile1,128);
+  std::cout << f2block << "\n\n";
 
-  int blocknumber = 0;
+  fsys.WriteBlock("file2",fsys.GetFirstBlock("file2"),f1block);
 
-  for (int i=0; i< blocks.size(); i++) {
-    blocknumber = fsys.AddBlock("file1",blocks.at(i));
-  }
+  fsys.ReadBlock("file2", fsys.GetFirstBlock("file2"),f2block);
 
-  fsys.DeleteBlock("file1",fsys.GetFirstBlock("file1"));
+  std::cout << f2block << "\n\n";
 
-  for (int i=1; i<=2048; i++) {
-    bfile2 += "2";
-  }
-
-  blocks = StandardizeBlocks(bfile2,128);
-
-  for (int i=0; i<blocks.size(); i++) {
-    blocknumber = fsys.AddBlock("file2", blocks.at(i));
-  }
-
-  fsys.DeleteBlock("file2",blocknumber);
-
-
+  std::cout << fsys.NextBlock("file2", fsys.GetFirstBlock("file2")) << "\n\n";
+  std::cout << fsys.NextBlock("file2", 53) << "\n\n";
+  std::cout << fsys.NextBlock("file2", 34) << "\n\n";
   return 0;
 }
 

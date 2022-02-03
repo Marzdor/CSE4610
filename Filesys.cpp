@@ -154,7 +154,7 @@ class Filesys: public Sdisk
         while(this->fat.at(current_file_block) != block_number) {
           current_file_block = this->fat.at(current_file_block);
         }
-        
+
         this->fat.at(current_file_block) = this->fat.at(block_number);
         this->fat.at(block_number) = this->fat.at(0);
         this->fat.at(0) = block_number;
@@ -164,9 +164,39 @@ class Filesys: public Sdisk
       return 1;
     };
 
-    int readblock(std::string file, int blocknumber, std::string& buffer);
-    int writeblock(std::string file, int blocknumber, std::string buffer);
-    int nextblock(std::string file, int blocknumber);
+    int ReadBlock(std::string filename, int block_number, std::string & buffer) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int found_block = this->CheckBlock(formatted_filename,block_number);
+
+      if(found_block == -1) {
+        return 0;
+      }
+
+      this->GetBlock(found_block, buffer);
+      return 1;
+    };
+
+    int WriteBlock(std::string filename, int block_number, std::string buffer) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int found_block = this->CheckBlock(formatted_filename,block_number);
+
+      if(found_block == -1) {
+        return 0;
+      }
+
+      this->PutBlock(found_block, buffer);
+    };
+
+    int NextBlock(std::string filename, int block_number) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int found_block = this->CheckBlock(formatted_filename,block_number);
+
+      if(found_block == -1) {
+        return -1;
+      }
+
+      return this->fat.at(found_block);
+    };
 
   private :
     int root_size;                        // maximum number of entries in ROOT
@@ -250,5 +280,28 @@ class Filesys: public Sdisk
       for (int i=0; i < this->GetNumberOfBlocks() && getline(ss, current_entry,' '); i++) {
         this->fat.push_back(std::stoi(current_entry));
       }
+    }
+
+    int CheckBlock(std::string filename, int block_number) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int current_file_block = this->GetFirstBlock(formatted_filename);
+
+      bool searching = true;
+
+      while(searching) {
+        if(current_file_block == block_number) {
+          searching= false;
+          return current_file_block;
+        }
+
+        if(current_file_block == kEndOfFile) {
+          searching= false;
+          return -1;
+        }
+
+        current_file_block = this->fat.at(current_file_block);
+      }
+
+
     }
 };

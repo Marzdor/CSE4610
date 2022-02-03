@@ -16,4 +16,3 @@ const int kWidth = 5;
 const int kEndOfFile = 0;
 
 #endif
-
