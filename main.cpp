@@ -10,7 +10,7 @@ int main()
   std::string bfile1, bfile2;
 
   for (int i=1; i<=1024; i++) {
-    bfile1+="1";
+    bfile1 += "1";
   }
 
   std::vector<std::string> blocks = StandardizeBlocks(bfile1,128);
@@ -22,6 +22,19 @@ int main()
   }
 
   fsys.DeleteBlock("file1",fsys.GetFirstBlock("file1"));
+
+  for (int i=1; i<=2048; i++) {
+    bfile2 += "2";
+  }
+
+  blocks = StandardizeBlocks(bfile2,128);
+
+  for (int i=0; i<blocks.size(); i++) {
+    blocknumber = fsys.AddBlock("file2", blocks.at(i));
+  }
+
+  fsys.DeleteBlock("file2",blocknumber);
+
 
   return 0;
 }

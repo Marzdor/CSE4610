@@ -117,7 +117,7 @@ class Filesys: public Sdisk
         this->PutBlock(free_block, buffer);
 
       } else {
-        int current_file_block = this->GetFirstBlock(formatted_filename);
+        int current_file_block = file_first_block;
 
         while(this->fat.at(current_file_block) != kEndOfFile) {
           current_file_block = this->fat.at(current_file_block);
@@ -134,7 +134,34 @@ class Filesys: public Sdisk
     };
 
     int DeleteBlock(std::string filename, int block_number) {
+      std::string formatted_filename = FormatteFileName(filename);
+      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      bool file_exists = file_location != -1;
 
+      if(!file_exists) {
+        return 0;
+      }
+
+      int file_first_block = this->GetFirstBlock(formatted_filename);
+
+      if(file_first_block == block_number) {
+        this->first_blocks.at(file_location) = this->fat.at(block_number);
+        this->fat.at(block_number) = this->fat.at(0);
+        this->fat.at(0) = block_number;
+      } else {
+        int current_file_block = file_first_block;
+
+        while(this->fat.at(current_file_block) != block_number) {
+          current_file_block = this->fat.at(current_file_block);
+        }
+        
+        this->fat.at(current_file_block) = this->fat.at(block_number);
+        this->fat.at(block_number) = this->fat.at(0);
+        this->fat.at(0) = block_number;
+      }
+
+      this->FileSystemSync();
+      return 1;
     };
 
     int readblock(std::string file, int blocknumber, std::string& buffer);
