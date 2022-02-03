@@ -1,27 +1,59 @@
-#include "Filesys.cpp"
+#include <iostream>
+#include <string>
+
 
 int main()
 {
-  Filesys fsys("test2",256,128);
+//
+//This main program inputs commands to the shell.
+//It inputs commands as : command op1 op2
+//You should modify it to work for your implementation.
+//
+  std::string s;
+  std::string command = "go";
+  std::string op1, op2;
 
-  std::string f1block, f2block;
-  fsys.ReadBlock("file1",17,f1block);
+  while (command != "quit") {
+    command.clear();
+    op1.clear();
+    op2.clear();
+    std::cout << "$";
+    
+    getline(cin,s);
+    
+    int firstblank=s.find(' ');
+    
+    if (firstblank < s.length()) s[firstblank] = '#';
+    
+    int secondblank = s.find(' ');
+    command = s.substr(0, firstblank);
+    
+    if (firstblank < s.length())
+      op1=s.substr(firstblank+1,secondblank-firstblank-1);
+      
+    if (secondblank < s.length())
+      op2=s.substr(secondblank+1);
+      
+    if (command=="dir") {
+      // use the ls function
+    }
+    if (command=="add") {
+      // The variable op1 is the new file and op2 is the file data
+    }
+    if (command=="del") {
+      // The variable op1 is the file
+    }
+    if (command=="type") {
+      // The variable op1 is the file
+    }
+    if (command=="copy") {
+      // The variable op1 is the source file and the variable op2 is the destination file.
+    }
+    if (command=="search") {
+      // This is the command for Project 4
+      // The variable op1 is the date
+    }
+  }
 
-  std::cout << f1block << "\n\n";
-
-  fsys.ReadBlock("file2", fsys.GetFirstBlock("file2"),f2block);
-
-  std::cout << f2block << "\n\n";
-
-  fsys.WriteBlock("file2",fsys.GetFirstBlock("file2"),f1block);
-
-  fsys.ReadBlock("file2", fsys.GetFirstBlock("file2"),f2block);
-
-  std::cout << f2block << "\n\n";
-
-  std::cout << fsys.NextBlock("file2", fsys.GetFirstBlock("file2")) << "\n\n";
-  std::cout << fsys.NextBlock("file2", 53) << "\n\n";
-  std::cout << fsys.NextBlock("file2", 34) << "\n\n";
   return 0;
 }
-

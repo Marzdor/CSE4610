@@ -198,6 +198,18 @@ class Filesys: public Sdisk
       return this->fat.at(found_block);
     };
 
+    std::vector<std::string> ls() {
+      std::vector<std::string> file_list;
+
+      for (int i=0; i<this->file_names.size(); i++) {
+        if (filename.at(i) != kBlankDirectory) {
+          file_list.push_back(filename.at(i));
+        }
+      }
+
+      return file_list;
+    }
+
   private :
     int root_size;                        // maximum number of entries in ROOT
     int fat_size;                         // number of blocks occupied by FAT
