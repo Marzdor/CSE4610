@@ -96,8 +96,7 @@ class Filesys: public Sdisk
     int AddBlock(std::string filename, std::string buffer) {
       int free_block = this->fat.at(0);
 
-      bool have_space = free_block != 0;
-      if(!have_space) {
+      if(free_block == kEndOfFile) {
         return -1;
       }
 
@@ -110,40 +109,38 @@ class Filesys: public Sdisk
       }
 
       int file_first_block = this->GetFirstBlock(formatted_filename);
-      bool file_is_empty = file_first_block == 0;
 
-      if(file_is_empty) {
+      if(file_first_block == kEndOfFile) {
         this->first_blocks.at(file_location) = free_block;
         this->fat.at(0) = this->fat.at(free_block);
-        this->fat.at(free_block) = 0;
+        this->fat.at(free_block) = kEndOfFile;
         this->PutBlock(free_block, buffer);
-        
+
       } else {
-        int current_file_block = file_is_empty;
-        int not_end_of_file = this->fat.at(current_file_block) == 0;
-        
-        while(not_end_of_file) {
+        int current_file_block = this->GetFirstBlock(formatted_filename);
+
+        while(this->fat.at(current_file_block) != kEndOfFile) {
           current_file_block = this->fat.at(current_file_block);
         }
-        
-        this->first_blocks.at(file_location) = free_block;
+
+        this->fat.at(current_file_block) = free_block;
         this->fat.at(0) = this->fat.at(free_block);
-        this->fat.at(free_block) = 0;
+        this->fat.at(free_block) = kEndOfFile;
         this->PutBlock(free_block, buffer);
       }
-      
+
       this->FileSystemSync();
       return free_block;
     };
 
-    int DeleteBlock(std::string filename, int block_number){
-    	
-	};
-    
+    int DeleteBlock(std::string filename, int block_number) {
+
+    };
+
     int readblock(std::string file, int blocknumber, std::string& buffer);
     int writeblock(std::string file, int blocknumber, std::string buffer);
     int nextblock(std::string file, int blocknumber);
-    
+
   private :
     int root_size;                        // maximum number of entries in ROOT
     int fat_size;                         // number of blocks occupied by FAT

@@ -2,6 +2,7 @@
 #include "Utilities.h"
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 std::string FormatteFileName(std::string filename)
 {
@@ -26,7 +27,7 @@ std::vector<std::string> StandardizeBlocks(std::string buffer, int block_size)
   int number_of_blocks = 0;
 
   if (buffer.length() % block_size == 0) {
-    number_of_blocks = buffer.length()  block_size;
+    number_of_blocks = buffer.length() /  block_size;
   } else {
     number_of_blocks = buffer.length() / block_size + 1;
   }

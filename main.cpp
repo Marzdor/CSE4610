@@ -21,6 +21,8 @@ int main()
     blocknumber = fsys.AddBlock("file1",blocks.at(i));
   }
 
+  fsys.DeleteBlock("file1",fsys.GetFirstBlock("file1"));
+
   return 0;
 }
 
