@@ -1,19 +1,25 @@
-#include "Filesys.cpp"
+#include "Table.h"
+#include "Filesys.h"
+#include <string>
 
-class Table : public Filesys
+Table::Table(std::string disk_name, int block_size, int number_of_blocks, std::string flat_file, std::string index_file)
+  : Filesys(disk_name, number_of_blocks, block_size)
 {
-  public :
-    Table(std::string disk_name, int block_size, int number_of_blocks, std::string flat_file, std::string index_file)
-      : Filesys(disk_name, number_of_blocks, block_size) {
 
-    };
+};
 
+int Table::Build_Table(std::string input_file)
+{
 
-    int Build_Table(string input_file);
-    int Search(string value);
-  private :
-    string flatfile;
-    string indexfile;
-    int IndexSearch(string value);
+};
+
+int Table::Search(std::string value)
+{
+
+};
+
+int Table::IndexSearch(std::string value)
+{
+
 };
 
