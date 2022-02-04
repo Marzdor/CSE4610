@@ -25,7 +25,7 @@ int main()
   std::string command = "go";
   std::string op1, op2;
 
-  while (command != "quit") {
+  while (command != "quit" || command != "q") {
     command.clear();
     op1.clear();
     op2.clear();
