@@ -22,7 +22,7 @@ int main()
   std::cout << " 8    Y     888  d8(  888   .o8\"'88b        `88b    d88' oo     .d8P" << std::endl;
   std::cout << "o8o        o888o `Y888\"\"8o o88'   888o       `Y8bood8P'  8\"\"88888P' " << std::endl;
 
-  std::vector<std::string> kCommands {"dir","add","del","type","copy","search"};
+  std::vector<std::string> kCommands {"dir","add","del","type","copy","search","help"};
   std::string s;
   std::string command = "go";
   std::string op1, op2;
@@ -83,6 +83,13 @@ int main()
       case 5:
         // This is the command for Project 4
         // The variable op1 is the date
+        break;
+      case 6:
+        std::cout << "List Of All Commands\n";
+        for(int i=0; i<kCommands.size(); i++) {
+          std::cout << kCommands.at(i) << " ";
+        }
+        std::cout << std::endl;
         break;
       default:
         if(command.length()) {
