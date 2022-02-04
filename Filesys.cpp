@@ -6,7 +6,7 @@
 
 class Filesys: public Sdisk
 {
-  public :
+  public:
     Filesys(std::string disk_name, int number_of_blocks, int block_size)
       : Sdisk(disk_name, number_of_blocks, block_size) {
 
@@ -202,8 +202,8 @@ class Filesys: public Sdisk
       std::vector<std::string> file_list;
 
       for (int i=0; i<this->file_names.size(); i++) {
-        if (filename.at(i) != kBlankDirectory) {
-          file_list.push_back(filename.at(i));
+        if (this->file_names.at(i) != kBlankDirectory) {
+          file_list.push_back(this->file_names.at(i));
         }
       }
 
@@ -221,7 +221,7 @@ class Filesys: public Sdisk
       std::string root_block;
       this->GetBlock(0,root_block);
 
-      bool fresh_drive = root_block.at(0)=='.';
+      bool fresh_drive = root_block.at(0) == kBlankData;
 
       this->LoadRoot(fresh_drive);
       this->LoadFat(fresh_drive);
