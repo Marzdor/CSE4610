@@ -1,4 +1,6 @@
-#include "Shell.cpp"
+#include "Shell.h"
+#include "Utilities.h"
+#include "Config.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -46,8 +48,6 @@ int main()
     if (secondblank < s.length())
       op2=s.substr(secondblank+1);
 
-    std::cout << command << " " << op1.length() << " " << op1.length() << "\n\n";
-
     switch (FindStringIndex(kCommands, command)) {
       case 0:
         shell.dir();
@@ -55,26 +55,30 @@ int main()
       case 1:
         if(op1.length() && op2.length()) {
           shell.add(op1, op2);
+        } else {
+          std::cout << "Invalid Command Options\n";
         }
-        std::cout << "Invalid Command Options\n";
         break;
       case 2:
         if(op1.length()) {
           shell.del(op1);
+        } else {
+          std::cout << "Invalid Command Options\n";
         }
-        std::cout << "Invalid Command Options\n";
         break;
       case 3:
         if(op1.length()) {
           shell.type(op1);
+        } else {
+          std::cout << "Invalid Command Options\n";
         }
-        std::cout << "Invalid Command Options\n";
         break;
       case 4:
         if(op1.length() && op2.length()) {
           shell.copy(op1, op2);
+        } else {
+          std::cout << "Invalid Command Options\n";
         }
-        std::cout << "Invalid Command Options\n";
         break;
       case 5:
         // This is the command for Project 4
