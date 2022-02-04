@@ -46,8 +46,8 @@ class Filesys: public Sdisk
 
     int CreateNewFile(std::string filename) {
       std::string formatted_filename = FormatteFileName(filename);
-      int file_location = FindFileIndex(this->file_names,formatted_filename);
-      int empty_file_index = FindFileIndex(this->file_names,kBlankDirectory);
+      int file_location = FindStringIndex(this->file_names,formatted_filename);
+      int empty_file_index = FindStringIndex(this->file_names,kBlankDirectory);
 
       bool file_exists = file_location != -1;
       bool no_free_space = empty_file_index == -1;
@@ -64,7 +64,7 @@ class Filesys: public Sdisk
 
     int RemoveFile(std::string filename) {
       std::string formatted_filename = FormatteFileName(filename);
-      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      int file_location = FindStringIndex(this->file_names,formatted_filename);
       bool file_exists = file_location != -1;
 
       if(!file_exists) {
@@ -84,7 +84,7 @@ class Filesys: public Sdisk
 
     int GetFirstBlock(std::string filename) {
       std::string formatted_filename = FormatteFileName(filename);
-      int found = FindFileIndex(this->file_names, filename);
+      int found = FindStringIndex(this->file_names, filename);
 
       if(found != -1) {
         return this->first_blocks.at(found);
@@ -101,7 +101,7 @@ class Filesys: public Sdisk
       }
 
       std::string formatted_filename = FormatteFileName(filename);
-      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      int file_location = FindStringIndex(this->file_names,formatted_filename);
       bool file_exists = file_location != -1;
 
       if(!file_exists) {
@@ -135,7 +135,7 @@ class Filesys: public Sdisk
 
     int DeleteBlock(std::string filename, int block_number) {
       std::string formatted_filename = FormatteFileName(filename);
-      int file_location = FindFileIndex(this->file_names,formatted_filename);
+      int file_location = FindStringIndex(this->file_names,formatted_filename);
       bool file_exists = file_location != -1;
 
       if(!file_exists) {

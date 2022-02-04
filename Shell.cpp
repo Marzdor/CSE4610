@@ -33,6 +33,7 @@ class Shell: public Filesys
         blocknumber = this->AddBlock(filename,blocks.at(i));
 
         if(blocknumber == 0 || blocknumber == -1) {
+          std::cout << "Error: Adding File \n";
           return 0;
         }
       }
@@ -44,12 +45,29 @@ class Shell: public Filesys
       // deletes the file
       int first_block = this->GetFirstBlock(filename);
 
+      if(first_block == 0) {
+        std::cout << "Error: File Does Not Exist\n";
+        return 0;
+      }
+
       while(first_block != 0) {
-        this->DeleteBlock(filename, first_block);
+        int delete_response = this->DeleteBlock(filename, first_block);
+
+        if(delete_response == 0) {
+          std::cout << "Error: Deleting Block \n";
+          return 0;
+        }
+
         first_block = this->GetFirstBlock(filename);
       }
 
-      this->RemoveFile(filename);
+      int remove_response = this->RemoveFile(filename);
+
+      if(remove_response == 0) {
+        std::cout << "Error: Deleting File \n";
+        return 0;
+      }
+
       return 1;
     };
 
@@ -57,6 +75,11 @@ class Shell: public Filesys
       //lists the contents of file
       int current_block = this->GetFirstBlock(filename);
       std::string buffer = "";
+
+      if(current_block == 0) {
+        std::cout << "Error: File Does Not Exist\n";
+        return 0;
+      }
 
       while(current_block != 0) {
         std::string tmp_string = "";
@@ -73,6 +96,11 @@ class Shell: public Filesys
       //copies file1 to file2
       int current_block = this->GetFirstBlock(first_file);
       std::string first_file_contents = "";
+
+      if(current_block == 0) {
+        std::cout << "Error: File Does Not Exist\n";
+        return 0;
+      }
 
       while(current_block != 0) {
         std::string tmp_string = "";

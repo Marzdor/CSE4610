@@ -2,6 +2,7 @@
 #define CONFIG
 
 #include <string>
+#include <vector>
 
 const std::string kDelim = " ";
 const std::string kDriveDirectory = "./sys/";

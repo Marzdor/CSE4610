@@ -9,17 +9,17 @@ std::string FormatteFileName(std::string filename)
   return filename.substr(0,kWidth);
 };
 
-int FindFileIndex(std::vector<std::string> files, std::string filename)
+int FindStringIndex(std::vector<std::string> elements, std::string to_find)
 {
-  auto iterator = std::find(files.begin(), files.end(), filename);
+  auto iterator = std::find(elements.begin(), elements.end(), to_find);
 
-  if (iterator != files.end()) {
-    int index = iterator - files.begin();
+  if (iterator != elements.end()) {
+    int index = iterator - elements.begin();
     return index;
   } else {
     return -1;
   }
-}
+};
 
 std::vector<std::string> StandardizeBlocks(std::string buffer, int block_size)
 {
@@ -45,4 +45,5 @@ std::vector<std::string> StandardizeBlocks(std::string buffer, int block_size)
   }
 
   return blocks;
-}
+};
+

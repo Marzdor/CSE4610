@@ -1,7 +1,7 @@
-
 #include "Shell.cpp"
 #include <iostream>
 #include <string>
+#include <vector>
 
 int main()
 {
@@ -12,11 +12,6 @@ int main()
 //
   Shell shell("build1",256,128);
 
-  std::string s;
-  std::string command = "go";
-  std::string op1, op2;
-
-
   std::cout << "ooo        ooooo                              .oooooo.    .oooooo..o" << std::endl;
   std::cout << "`88.       .888'                             d8P'  `Y8b  d8P'    `Y8" << std::endl;
   std::cout << " 888b     d'888   .oooo.   oooo    ooo      888      888 Y88bo.     " << std::endl;
@@ -25,6 +20,10 @@ int main()
   std::cout << " 8    Y     888  d8(  888   .o8\"'88b        `88b    d88' oo     .d8P" << std::endl;
   std::cout << "o8o        o888o `Y888\"\"8o o88'   888o       `Y8bood8P'  8\"\"88888P' " << std::endl;
 
+  std::vector<std::string> kCommands {"dir","add","del","type","copy","search"};
+  std::string s;
+  std::string command = "go";
+  std::string op1, op2;
 
   while (command != "quit") {
     command.clear();
@@ -47,29 +46,44 @@ int main()
     if (secondblank < s.length())
       op2=s.substr(secondblank+1);
 
-    if (command=="dir") {
-      // use the ls function
-      shell.dir();
-    }
-    if (command=="add") {
-      // The variable op1 is the new file and op2 is the file data
-      shell.add(op1, op2);
-    }
-    if (command=="del") {
-      // The variable op1 is the file
-      shell.del(op1);
-    }
-    if (command=="type") {
-      // The variable op1 is the file
-      shell.type(op1);
-    }
-    if (command=="copy") {
-      // The variable op1 is the source file and the variable op2 is the destination file.
-      shell.copy(op1, op2);
-    }
-    if (command=="search") {
-      // This is the command for Project 4
-      // The variable op1 is the date
+    std::cout << command << " " << op1.length() << " " << op1.length() << "\n\n";
+
+    switch (FindStringIndex(kCommands, command)) {
+      case 0:
+        shell.dir();
+        break;
+      case 1:
+        if(op1.length() && op2.length()) {
+          shell.add(op1, op2);
+        }
+        std::cout << "Invalid Command Options\n";
+        break;
+      case 2:
+        if(op1.length()) {
+          shell.del(op1);
+        }
+        std::cout << "Invalid Command Options\n";
+        break;
+      case 3:
+        if(op1.length()) {
+          shell.type(op1);
+        }
+        std::cout << "Invalid Command Options\n";
+        break;
+      case 4:
+        if(op1.length() && op2.length()) {
+          shell.copy(op1, op2);
+        }
+        std::cout << "Invalid Command Options\n";
+        break;
+      case 5:
+        // This is the command for Project 4
+        // The variable op1 is the date
+        break;
+      default:
+        if(command.length()) {
+          std::cout << "Command Not Found\n";
+        }
     }
   }
 
