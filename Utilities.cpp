@@ -2,7 +2,6 @@
 #include "Utilities.h"
 #include <iostream>
 #include <algorithm>
-#include <vector>
 
 std::string FormatteFileName(std::string filename)
 {

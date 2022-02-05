@@ -1,4 +1,5 @@
 #include "Shell.h"
+#include "Table.h"
 #include "Utilities.h"
 #include "Config.h"
 #include <iostream>
@@ -12,7 +13,9 @@ int main()
 //It inputs commands as : command op1 op2
 //You should modify it to work for your implementation.
 //
-  Shell shell("build1",256,128);
+  Shell shell = Shell("sdisk.txt",256,128);
+  Table table = Table("sdisk.txt",256,128,"flatfile","indexfile");
+  table.Build_Table("tableData");
 
   std::cout << "ooo        ooooo                              .oooooo.    .oooooo..o" << std::endl;
   std::cout << "`88.       .888'                             d8P'  `Y8b  d8P'    `Y8" << std::endl;
