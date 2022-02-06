@@ -89,7 +89,7 @@ int Filesys::RemoveFile(std::string filename)
 int Filesys::GetFirstBlock(std::string filename)
 {
   std::string formatted_filename = FormatteFileName(filename);
-  int found = FindStringIndex(this->file_names, filename);
+  int found = FindStringIndex(this->file_names, formatted_filename);
 
   if(found != -1) {
     return this->first_blocks.at(found);
