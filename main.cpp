@@ -45,6 +45,10 @@ int main()
     int secondblank = s.find(' ');
     command = s.substr(0, firstblank);
 
+    if(command == "quit" || command == "q" ) {
+      exit(-1);
+    }
+
     if (firstblank < s.length())
       op1=s.substr(firstblank+1,secondblank-firstblank-1);
 
@@ -84,8 +88,11 @@ int main()
         }
         break;
       case 5:
-        // This is the command for Project 4
-        // The variable op1 is the date
+        if(op1.length()) {
+          table.Search(op1);
+        } else {
+          std::cout << "Invalid Command Options\n";
+        }
         break;
       case 6:
         std::cout << "List Of All Commands\n";
@@ -96,7 +103,7 @@ int main()
         break;
       default:
         if(command.length()) {
-          std::cout << "Command Not Found\n";
+          std::cout << command << " Command Not Found\n";
         }
     }
   }
