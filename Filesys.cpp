@@ -322,6 +322,6 @@ int Filesys::CheckBlock(std::string filename, int block_number)
     }
 
     current_file_block = this->fat.at(current_file_block);
-    return 1;
   }
+  return 1;
 }
