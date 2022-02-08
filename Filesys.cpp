@@ -19,6 +19,7 @@ Filesys::Filesys(std::string disk_name, int number_of_blocks, int block_size)
 int Filesys::fsclose()
 {
   // TODO
+  return 1;
 };
 
 void Filesys::FileSystemSync()
@@ -194,6 +195,7 @@ int Filesys::WriteBlock(std::string filename, int block_number, std::string buff
   }
 
   this->PutBlock(found_block, buffer);
+  return 1;
 };
 
 int Filesys::NextBlock(std::string filename, int block_number)
@@ -320,5 +322,6 @@ int Filesys::CheckBlock(std::string filename, int block_number)
     }
 
     current_file_block = this->fat.at(current_file_block);
+    return 1;
   }
 }
